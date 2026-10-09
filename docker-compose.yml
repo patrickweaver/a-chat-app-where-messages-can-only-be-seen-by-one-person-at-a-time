@@ -1,0 +1,72 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: chat
+      POSTGRES_PASSWORD: chat
+      POSTGRES_DB: chat
+    ports:
+      - "127.0.0.1:${DB_HOST_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chat -d chat"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+  api:
+    build:
+      context: .
+      target: dev
+    command: npm run dev -w api
+    environment:
+      DATABASE_URL: postgres://chat:chat@db:5432/chat
+      PORT: 3000
+    # Not published to the host: the browser reaches the API through the Vite proxy.
+    # Use `docker compose exec api ...` or http://localhost:5173/api to talk to it.
+    depends_on:
+      db:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/api/src
+          target: /app/apps/api/src
+        # Migrations run on startup, so restart the API when they change.
+        - action: sync+restart
+          path: ./apps/api/migrations
+          target: /app/apps/api/migrations
+        - action: rebuild
+          path: ./apps/api/package.json
+        - action: rebuild
+          path: ./package-lock.json
+
+  web:
+    build:
+      context: .
+      target: dev
+    command: npm run dev -w web
+    environment:
+      API_PROXY_TARGET: http://api:3000
+    ports:
+      - "${WEB_HOST_PORT:-5173}:5173"
+    depends_on:
+      - api
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/web/src
+          target: /app/apps/web/src
+        - action: sync
+          path: ./apps/web/index.html
+          target: /app/apps/web/index.html
+        - action: rebuild
+          path: ./apps/web/vite.config.ts
+        - action: rebuild
+          path: ./apps/web/package.json
+        - action: rebuild
+          path: ./package-lock.json
+
+volumes:
+  pgdata:

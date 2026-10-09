@@ -1,0 +1,124 @@
+/* Mobile-first: these base styles target small screens. The layout grows with the viewport
+   up to a 600px column on wider displays. Everything else uses browser default styles. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  margin: 2rem;
+  overflow-wrap: break-word;
+}
+
+#root {
+  max-width: 600px;
+  margin-inline: auto;
+}
+
+/* At least 16px so iOS Safari doesn't zoom in when a field is focused. */
+input,
+textarea,
+button {
+  font-size: 1rem;
+}
+
+input,
+textarea {
+  max-width: 100%;
+}
+
+textarea {
+  width: 100%;
+}
+
+/* The message on a message page: the note box, with optional tabs along its top edge (latest
+   reaction) and bottom edge (earlier reactions). */
+.note-card {
+  margin: 1em 0;
+}
+
+.note {
+  padding: 1rem;
+  border: 3px solid #5f4b6b;
+  background: #eddff5;
+  font-size: 18px;
+}
+
+.note-body {
+  margin: 0;
+  font-size: 24px;
+  white-space: pre-wrap;
+}
+
+.note-time {
+  margin: 0.75rem 0 0;
+  font-size: 14px;
+  color: #333;
+  text-align: right;
+}
+
+/* Most recent sender and their reaction, e.g. bob: "☺️" (or just bob if the message hasn't
+   been forwarded), shown as a file tab on top of the note.
+   A trapezoid whose sides slant like "/": skewing from the bottom-left corner keeps it
+   aligned with the note's left edge while the top leans right. It has no bottom border so
+   it rests on the note's top border. The inner span is skewed back so the text stays upright. */
+.note-reaction {
+  width: fit-content;
+  margin: 0;
+  padding: 0.25rem 0.75rem;
+  border: 2px solid #7a5880;
+  border-bottom: 0;
+  background: #e5bceb;
+  transform: skewX(-15deg);
+  transform-origin: bottom left;
+}
+
+.note-reaction > span {
+  display: inline-block;
+  transform: skewX(15deg);
+}
+
+/* Earlier reactions, shown as a right-aligned tab hanging from the note's bottom edge: the top
+   tab rotated 180°. Skewing from the top-right corner keeps it aligned with the note's right
+   edge, with the sides slanting like "/". Same colors and border as the note, minus the top
+   border so it hangs from the note's bottom border. The list is skewed back so the emoji stay
+   upright. */
+.note-reactions-tab {
+  width: fit-content;
+  margin-left: auto;
+  padding: 0.25rem 0.75rem;
+  border: 3px solid #5f4b6b;
+  border-top: 0;
+  background: #eddff5;
+  font-size: 18px;
+  transform: skewX(-15deg);
+  transform-origin: top right;
+}
+
+.note-reactions-tab > .reactions {
+  transform: skewX(15deg);
+}
+
+/* A row of emoji that overlap once there are more than 5. */
+.reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reactions[data-overlap="true"] {
+  gap: 0;
+}
+
+.reactions[data-overlap="true"] li + li {
+  margin-inline-start: -0.4em;
+}
